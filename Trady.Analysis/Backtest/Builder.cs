@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using Trady.Core;
+using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis.Backtest
 {
     public class Builder
     {
-        private IDictionary<IEnumerable<Candle>, int> _weightings;
+        private IDictionary<IEnumerable<IOhlcvData>, int> _weightings;
         private Predicate<IndexedCandle> _buyRule, _sellRule;
 
         public Builder() : this(null, null, null)
@@ -14,16 +15,16 @@ namespace Trady.Analysis.Backtest
         }
 
         private Builder(
-            IDictionary<IEnumerable<Candle>, int> weightings, 
+            IDictionary<IEnumerable<IOhlcvData>, int> weightings, 
             Predicate<IndexedCandle> buyRule, 
             Predicate<IndexedCandle> sellRule)
         {
-            _weightings = weightings ?? new Dictionary<IEnumerable<Candle>, int>();
+            _weightings = weightings ?? new Dictionary<IEnumerable<IOhlcvData>, int>();
             _buyRule = buyRule;
             _sellRule = sellRule;
         }
 
-        public Builder Add(IEnumerable<Candle> candles, int weighting = 1)
+        public Builder Add(IEnumerable<IOhlcvData> candles, int weighting = 1)
         {
             _weightings.Add(candles, weighting);
             return new Builder(_weightings, _buyRule, _sellRule);

@@ -6,18 +6,18 @@ using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis.Backtest
 {
-    public class BuySellRuleExecutor : RuleExecutorBase<Candle, IndexedCandle, (TransactionType, IndexedCandle)>
+    public class BuySellRuleExecutor : RuleExecutorBase<IOhlcvData, IndexedCandle, (TransactionType, IndexedCandle)>
     {
         public BuySellRuleExecutor(
             Func<IndexedCandle, int, (TransactionType, IndexedCandle)> outputFunc, 
-            IAnalyzeContext<Candle> context, 
+            IAnalyzeContext<IOhlcvData> context, 
             Predicate<IndexedCandle> buyRule, 
             Predicate<IndexedCandle> sellRule)
             : base(outputFunc, context, new Predicate<IndexedCandle>[] { buyRule, sellRule })
         {
         }
 
-        public override Func<IEnumerable<Candle>, int, IndexedCandle> IndexedObjectConstructor
+        public override Func<IEnumerable<IOhlcvData>, int, IndexedCandle> IndexedObjectConstructor
             => (l, i) => new IndexedCandle(l, i);
     }
 }

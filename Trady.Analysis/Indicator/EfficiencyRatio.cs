@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Trady.Analysis.Infrastructure;
 using Trady.Core;
+using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis.Indicator
 {
@@ -34,9 +35,9 @@ namespace Trady.Analysis.Indicator
         }
     }
 
-    public class EfficiencyRatio : EfficiencyRatio<Candle, AnalyzableTick<decimal?>>
+    public class EfficiencyRatio : EfficiencyRatio<IOhlcvData, AnalyzableTick<decimal?>>
     {
-        public EfficiencyRatio(IEnumerable<Candle> inputs, int periodCount)
+        public EfficiencyRatio(IEnumerable<IOhlcvData> inputs, int periodCount)
             : base(inputs, i => i.Close, periodCount)
         {
         }

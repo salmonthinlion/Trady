@@ -76,9 +76,9 @@ namespace Trady.Analysis
         #endregion
     }
 
-    public class AnalyzeContext : AnalyzeContext<Candle>
+    public class AnalyzeContext : AnalyzeContext<IOhlcvData>
     {
-        public AnalyzeContext(IEnumerable<Candle> backingList) : base(backingList)
+        public AnalyzeContext(IEnumerable<IOhlcvData> backingList) : base(backingList)
         {
         }
 

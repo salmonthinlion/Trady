@@ -7,11 +7,11 @@ using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis
 {
-    public class IndexedCandle : Candle, IIndexedObject<Candle>
+    public class IndexedCandle : Candle, IIndexedObject<IOhlcvData>
     {
         private IAnalyzeContext _context;
 
-        public IndexedCandle(IEnumerable<Candle> candles, int index)
+        public IndexedCandle(IEnumerable<IOhlcvData> candles, int index)
             : base(candles.ElementAt(index).DateTime,
                    candles.ElementAt(index).Open,
                    candles.ElementAt(index).High,
@@ -23,7 +23,7 @@ namespace Trady.Analysis
             Index = index;
         }
 
-        public IEnumerable<Candle> BackingList { get; }
+        public IEnumerable<IOhlcvData> BackingList { get; }
 
         public int Index { get; }
 
@@ -31,11 +31,11 @@ namespace Trady.Analysis
 
         public IndexedCandle Next => Index + 1 < BackingList.Count() ? new IndexedCandle(BackingList, Index + 1) : null;
 
-        public Candle Underlying => BackingList.ElementAt(Index);
+        public IOhlcvData Underlying => BackingList.ElementAt(Index);
 
-        public IAnalyzeContext<Candle> Context
+        public IAnalyzeContext<IOhlcvData> Context
         {
-            get => (IAnalyzeContext<Candle>)_context;
+            get => (IAnalyzeContext<IOhlcvData>)_context;
             set {
                 _context = value;
             }
@@ -45,11 +45,11 @@ namespace Trady.Analysis
 
         IIndexedObject IIndexedObject.Prev => Prev;
 
-        IIndexedObject<Candle> IIndexedObject<Candle>.Prev => Prev;
+        IIndexedObject<IOhlcvData> IIndexedObject<IOhlcvData>.Prev => Prev;
 
         IIndexedObject IIndexedObject.Next => Next;
 
-        IIndexedObject<Candle> IIndexedObject<Candle>.Next => Next;
+        IIndexedObject<IOhlcvData> IIndexedObject<IOhlcvData>.Next => Next;
 
         object IIndexedObject.Underlying => Underlying;
 

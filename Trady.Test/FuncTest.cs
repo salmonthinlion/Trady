@@ -5,18 +5,22 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Trady.Analysis;
+using Trady.Analysis.Extension;
 using Trady.Analysis.Indicator;
 using Trady.Analysis.Infrastructure;
 using Trady.Core;
+using Trady.Core.Infrastructure;
 using Trady.Importer;
-using AFunc = System.Func<System.Collections.Generic.IReadOnlyList<Trady.Core.Candle>, int, System.Collections.Generic.IReadOnlyList<decimal>, Trady.Core.Infrastructure.IAnalyzeContext<Trady.Core.Candle>, decimal?>;
+using Trady.Importer.Csv;
+
+using AFunc = System.Func<System.Collections.Generic.IReadOnlyList<Trady.Core.Infrastructure.IOhlcvData>, int, System.Collections.Generic.IReadOnlyList<decimal>, Trady.Core.Infrastructure.IAnalyzeContext<Trady.Core.Infrastructure.IOhlcvData>, decimal?>;
 
 namespace Trady.Test
 {
     [TestClass]
     public class FuncTest
     {
-		public async Task<IEnumerable<Candle>> ImportCandlesAsync()
+		public async Task<IEnumerable<IOhlcvData>> ImportIOhlcvDatasAsync()
 		{
 			var csvImporter = new CsvImporter("fb.csv", new CultureInfo("en-US"));
 			return await csvImporter.ImportAsync("fb");
@@ -25,7 +29,7 @@ namespace Trady.Test
         [TestMethod]
         public async Task TestGetRuleAsync()
         {
-			var candles = await ImportCandlesAsync();
+			var candles = await ImportIOhlcvDatasAsync();
 
             RuleRegistry.Register("isbelowsma30_2", "ic.Get<SimpleMovingAverage>(30)[ic.Index].Tick.IsTrue(t => t > ic.Close)");
             RuleRegistry.Register("isbelowsma30", (ic, p) => ic.Get<SimpleMovingAverage>(p[0])[ic.Index].Tick.IsTrue(t => t > ic.Close));
@@ -44,7 +48,7 @@ namespace Trady.Test
         [TestMethod]
         public async Task TestGetFuncFromContextAsync()
         {
-			var candles = await ImportCandlesAsync();
+			var candles = await ImportIOhlcvDatasAsync();
 
             FuncRegistry.Register("msma", "var sma = ctx.Get<SimpleMovingAverage>(10); return sma[i].Tick;");
             FuncRegistry.Register("msma2", (c, i, p, ctx) => ctx.Get<SimpleMovingAverage>(p[0])[i].Tick);
@@ -60,7 +64,7 @@ namespace Trady.Test
         [TestMethod]
         public async Task TestGetFromContextAsync()
         {
-			var candles = await ImportCandlesAsync();
+			var candles = await ImportIOhlcvDatasAsync();
             var result = candles.Func((c, i, _, ctx) => ctx.Get<ExponentialMovingAverage>(30)[i].Tick)[candles.Count() - 1];
             var emaResult = candles.Ema(30)[candles.Count() - 1];
 
@@ -70,7 +74,7 @@ namespace Trady.Test
 		[TestMethod]
 		public async Task TestSimpleOperationAsync()
 		{
-			var candles = await ImportCandlesAsync();
+			var candles = await ImportIOhlcvDatasAsync();
 
 			AFunc aFunc = (c, i, _, __) => c[i].Close;
 			var a = aFunc.AsAnalyzable(candles);

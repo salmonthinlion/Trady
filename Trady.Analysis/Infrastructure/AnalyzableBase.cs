@@ -18,21 +18,21 @@ namespace Trady.Analysis.Infrastructure
     /// </summary>
     public abstract class AnalyzableBase<TInput, TMappedInput, TOutputToMap, TOutput> : IAnalyzable<TOutput>
     {
-        private readonly bool _isTInputCandle, _isTOutputAnalyzableTick;
+        private readonly bool _isTInputIOhlcvData, _isTOutputAnalyzableTick;
 
         internal protected readonly IReadOnlyList<TMappedInput> _mappedInputs;
         readonly IReadOnlyList<DateTime> _mappedDateTimes;
 
         protected AnalyzableBase(IEnumerable<TInput> inputs, Func<TInput, TMappedInput> inputMapper)
         {
-            _isTInputCandle = typeof(TInput).Equals(typeof(Candle));
+            _isTInputIOhlcvData = typeof(TInput).Equals(typeof(IOhlcvData));
             _isTOutputAnalyzableTick = typeof(TOutput).Equals(typeof(AnalyzableTick<TOutputToMap>));
-            if (_isTInputCandle != _isTOutputAnalyzableTick)
+            if (_isTInputIOhlcvData != _isTOutputAnalyzableTick)
                 throw new ArgumentException("TInput, TOutput not matched!");
 
             _mappedInputs = inputs.Select(inputMapper).ToList();
-            if (_isTInputCandle)
-                _mappedDateTimes = inputs.Select(c => (c as Candle).DateTime).ToList();
+            if (_isTInputIOhlcvData)
+                _mappedDateTimes = inputs.Select(c => (c as IOhlcvData).DateTime).ToList();
 
             Cache = new ConcurrentDictionary<int, TOutputToMap>();
         }

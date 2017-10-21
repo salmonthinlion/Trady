@@ -6,14 +6,14 @@ using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis
 {
-    public class SimpleRuleExecutor : RuleExecutorBase<Candle, IndexedCandle, IndexedCandle>
+    public class SimpleRuleExecutor : RuleExecutorBase<IOhlcvData, IndexedCandle, IndexedCandle>
     {
-        public SimpleRuleExecutor(IAnalyzeContext<Candle> context, Predicate<IndexedCandle> rule)
+        public SimpleRuleExecutor(IAnalyzeContext<IOhlcvData> context, Predicate<IndexedCandle> rule)
             : base((l, i) => l, context, new Predicate<IndexedCandle>[] { rule })
         {
         }
 
-        public override Func<IEnumerable<Candle>, int, IndexedCandle> IndexedObjectConstructor
+        public override Func<IEnumerable<IOhlcvData>, int, IndexedCandle> IndexedObjectConstructor
             => (l, i) => new IndexedCandle(l, i);
     }
 }

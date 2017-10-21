@@ -1,8 +1,8 @@
 ﻿using Trady.Analysis.Indicator;
 
-namespace Trady.Analysis
+namespace Trady.Analysis.Extension
 {
-    public static class IndexedCandleExtension
+    public static class IndexedIOhlcvDataExtension
     {
         public static decimal? ClosePriceChange(this IndexedCandle ic)
             => ic.Get<ClosePriceChange>(1)[ic.Index].Tick;
