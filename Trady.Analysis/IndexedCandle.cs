@@ -7,9 +7,11 @@ using Trady.Core.Infrastructure;
 
 namespace Trady.Analysis
 {
-    public class IndexedCandle : Candle, IIndexedObject<IOhlcvData>
+    public class IndexedCandle : Candle, IIndexedOhlcvData
     {
         private IAnalyzeContext _context;
+
+        private IIndexedOhlcvData _underlying;
 
         public IndexedCandle(IEnumerable<IOhlcvData> candles, int index)
             : base(candles.ElementAt(index).DateTime,
@@ -25,20 +27,24 @@ namespace Trady.Analysis
 
         public IEnumerable<IOhlcvData> BackingList { get; }
 
+        IIndexedOhlcvData IIndexedOhlcvData.Prev => Prev;
+
+        IIndexedOhlcvData IIndexedOhlcvData.Next => Next;
+
+        IIndexedOhlcvData IIndexedOhlcvData.Underlying => _underlying;
+
         public int Index { get; }
 
-        public IndexedCandle Prev => Index - 1 >= 0 ? new IndexedCandle(BackingList, Index - 1) : null;
+        public IIndexedOhlcvData Prev => Index - 1 >= 0 ? new IndexedCandle(BackingList, Index - 1) : null;
 
-        public IndexedCandle Next => Index + 1 < BackingList.Count() ? new IndexedCandle(BackingList, Index + 1) : null;
+        public IIndexedOhlcvData Next => Index + 1 < BackingList.Count() ? new IndexedCandle(BackingList, Index + 1) : null;
 
         public IOhlcvData Underlying => BackingList.ElementAt(Index);
 
         public IAnalyzeContext<IOhlcvData> Context
         {
             get => (IAnalyzeContext<IOhlcvData>)_context;
-            set {
-                _context = value;
-            }
+            set => _context = value;
         }
 
         IEnumerable IIndexedObject.BackingList => BackingList;
@@ -56,9 +62,7 @@ namespace Trady.Analysis
         IAnalyzeContext IIndexedObject.Context
         {
             get => _context;
-            set {
-                _context = value;
-            }
+            set => _context = value;
         }
 
         public TAnalyzable Get<TAnalyzable>(params object[] @params) where TAnalyzable : IAnalyzable

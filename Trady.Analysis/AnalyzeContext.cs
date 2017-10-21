@@ -82,7 +82,7 @@ namespace Trady.Analysis
         {
         }
 
-        public Predicate<IndexedCandle> GetRule(string name, params decimal[] parameters)
-            => GetRule<IndexedCandle>(name, parameters);
+        public Predicate<IIndexedOhlcvData> GetRule(string name, params decimal[] parameters)
+            => GetRule<IIndexedOhlcvData>(name, parameters);
     }
 }
