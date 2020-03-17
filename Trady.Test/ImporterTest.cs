@@ -10,6 +10,11 @@ using Trady.Importer.Quandl;
 //using Trady.Importer.Quandl;
 using Trady.Importer.Stooq;
 using Trady.Importer.Yahoo;
+using Trady.Core;
+using Trady.Core.Period;
+using System.Collections.Generic;
+using System.IO;
+using CsvHelper;
 
 namespace Trady.Test
 {
@@ -36,6 +41,41 @@ namespace Trady.Test
         //}
 
         // TODO: test later
+        /**/
+
+        [TestMethod]
+        public void ImportCsv()
+        {
+            
+            CsvImporter imp = new CsvImporter(@"C:\Users\user\Downloads\Telegram Desktop\bitmexoneminute2018-2.csv",new CultureInfo("en-US"));
+            var data = imp.ImportAsync("XBTUSD", null, null, Core.Period.PeriodOption.PerMinute).Result;
+           
+            //var totr = new List<Candle>(1_050000);
+            //var c= 0;
+            //foreach (var m in data)
+            //{
+            //    var date = new DateTimeOffset(m.DateTime.DateTime.AddMinutes(-1), TimeSpan.Zero);
+            //    //if(c==3)
+            //    //{
+            //    //    date = date.AddMinutes(-2).AddSeconds(-3);
+            //    //}
+            //    totr.Add(new Candle(date, m.Open, m.High, m.Low, m.Close, m.Volume));
+            //    c++;
+            //}
+            //var t = data.Where(c => c.DateTime.DateTime.ToUniversalTime() >= new DateTime(2018, 3, 24) && c.DateTime.DateTime.ToUniversalTime() < new DateTime(2018, 4, 1));
+
+            //var min115 = t.Transform<PerMinute, Per15Minute>().ToList();
+
+            var min15 = data.Transform<PerMinute, Per15Minute>().Cast<Candle>();
+            using (var writer = new StreamWriter(@"C:\Users\user\Downloads\Telegram Desktop\min15.csv"))
+            using (var csv = new CsvWriter(writer, CultureInfo.InvariantCulture))
+            {
+                csv.WriteRecords(min15);
+            }
+            Assert.IsTrue(min15.Any());
+        }
+
+
         [TestMethod]
         public void ImportByQuandlYahoo()
         {

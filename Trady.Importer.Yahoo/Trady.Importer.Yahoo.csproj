@@ -34,7 +34,7 @@
         <LangVersion>latest</LangVersion>
       </PropertyGroup>
       <ItemGroup>
-        <PackageReference Include="YahooFinanceApi" Version="2.1.1" />
+        <PackageReference Include="YahooFinanceApi" Version="2.1.2" />
       </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Trady.Core\Trady.Core.csproj" />
