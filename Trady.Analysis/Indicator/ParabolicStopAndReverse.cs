@@ -13,6 +13,8 @@ namespace Trady.Analysis.Indicator
     {
         const int LongShortDeterminationPeriod = 4;
 
+        public decimal Start { get; }
+        
         public decimal Step { get; }
 
         public decimal MaximumStep { get; }
@@ -21,11 +23,13 @@ namespace Trady.Analysis.Indicator
         decimal _extremePoint;
         decimal _acceleratingFactor;
 
-        public ParabolicStopAndReverse(IEnumerable<TInput> inputs, Func<TInput, (decimal High, decimal Low)> inputMapper, decimal step = 0.02m, decimal maximumStep = 0.2m) : base(inputs, inputMapper)
+        public ParabolicStopAndReverse(IEnumerable<TInput> inputs, Func<TInput, (decimal High, decimal Low)> inputMapper,
+            decimal start = 0.00252m, decimal step = 0.00133m, decimal maximumStep = 0.22m) : base(inputs, inputMapper)
         {
             if (step > maximumStep)
                 throw new ArgumentException($"{nameof(step)} must be smaller than {nameof(maximumStep)}");
 
+            Start = start;
             MaximumStep = maximumStep;
             Step = step;
         }
@@ -36,7 +40,7 @@ namespace Trady.Analysis.Indicator
         decimal? ComputeDowntrend(IReadOnlyList<(decimal High, decimal Low)> mappedInputs, int index, decimal? prevOutputToMap)
         {
             decimal? sar;
-            var isTrendUnchanged = mappedInputs[index - 1].High < prevOutputToMap;
+            var isTrendUnchanged = mappedInputs[index].High < prevOutputToMap;
             if (isTrendUnchanged)
             {
                 // Current downtrend
@@ -53,7 +57,7 @@ namespace Trady.Analysis.Indicator
                 // Current uptrend
                 sar = _extremePoint;
                 _extremePoint = Math.Max(_extremePoint, mappedInputs[index].High);
-                _acceleratingFactor = Step;
+                _acceleratingFactor = Start;
             }
 
             _isUptrend = !isTrendUnchanged;
@@ -63,7 +67,7 @@ namespace Trady.Analysis.Indicator
         decimal? ComputeUptrend(IReadOnlyList<(decimal High, decimal Low)> mappedInputs, int index, decimal? prevOutputToMap)
         {
             decimal? sar;
-            var isTrendUnchanged = mappedInputs[index - 1].Low > prevOutputToMap;
+            var isTrendUnchanged = mappedInputs[index].Low > prevOutputToMap;
             if (isTrendUnchanged)
             {
                 // Current uptrend
@@ -80,7 +84,7 @@ namespace Trady.Analysis.Indicator
                 // Current downtrend
                 sar = _extremePoint;
                 _extremePoint = Math.Min(_extremePoint, mappedInputs[index].Low);
-                _acceleratingFactor = Step;
+                _acceleratingFactor = Start;
             }
 
             _isUptrend = isTrendUnchanged;
@@ -129,16 +133,17 @@ namespace Trady.Analysis.Indicator
 
     public class ParabolicStopAndReverseByTuple : ParabolicStopAndReverse<(decimal High, decimal Low), decimal?>
     {
-        public ParabolicStopAndReverseByTuple(IEnumerable<(decimal High, decimal Low)> inputs, decimal step = 0.02M, decimal maximumStep = 0.2M) 
-            : base(inputs, i => i, step, maximumStep)
+        public ParabolicStopAndReverseByTuple(IEnumerable<(decimal High, decimal Low)> inputs, decimal start = 0.02M, 
+          decimal step = 0.02M, decimal maximumStep = 0.2M) 
+            : base(inputs, i => i, start, step, maximumStep)
         {
         }
     }
 
     public class ParabolicStopAndReverse : ParabolicStopAndReverse<IOhlcv, AnalyzableTick<decimal?>>
     {
-        public ParabolicStopAndReverse(IEnumerable<IOhlcv> inputs, decimal step = 0.02M, decimal maximumStep = 0.2M) 
-            : base(inputs, i => (i.High, i.Low), step, maximumStep)
+        public ParabolicStopAndReverse(IEnumerable<IOhlcv> inputs, decimal start = 0.02M, decimal step = 0.02M, decimal maximumStep = 0.2M) 
+            : base(inputs, i => (i.High, i.Low), start, step, maximumStep)
         {
         }
     }
