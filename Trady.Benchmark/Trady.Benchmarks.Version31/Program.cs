@@ -16,10 +16,10 @@ using BenchmarkDotNet.Columns;
 namespace Trady.Benchmarks.Version31
 {
     [Config(typeof(Config))]
-    [CoreJob]
+    [SimpleJob()]
     public class Benchmark
     {
-        private const int _n = 10000;
+        private const int _n = 100000;
         private readonly IOhlcv[] _data;
         private readonly ITickTrade[] _tradeData;
 
@@ -38,10 +38,10 @@ namespace Trady.Benchmarks.Version31
 
             _tradeData = new ITickTrade[_n];
             var d = DateTimeOffset.Now;
-            for(int i = 0; i < _n; i++)
-            {                
-                _tradeData[i] = new Trade(d.AddSeconds(i), 1, 1);
-            }           
+            for (int i = 0; i < _n; i++)
+            {
+                _tradeData[i] = new Trade(d.AddSeconds(i), 1, 1, i % 2 == 0);
+            }
 
         }
 
@@ -51,8 +51,8 @@ namespace Trady.Benchmarks.Version31
             {
                 Add(StatisticColumn.P90);
             }
-        }        
-     
+        }
+
         [Benchmark]
         public IReadOnlyList<IOhlcv> TransformToMonthly() => _data.Transform<PerMinute, Monthly>();
 
@@ -224,15 +224,15 @@ namespace Trady.Benchmarks.Version31
         [Benchmark]
         public IReadOnlyList<IAnalyzableTick<(decimal?, decimal?, decimal?)>> KeltnerChannels() => _data.Kc(20, 2, 10);
         [Benchmark]
-        public IReadOnlyList<IOhlcv> TransformFromTradesToMinute() => _tradeData.TransformToCandles<PerMinute>();
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToMinute() => _tradeData.TransformToCandles<PerMinute>();
         [Benchmark]
-        public IReadOnlyList<IOhlcv> TransformFromTradesToHourly() => _tradeData.TransformToCandles<Hourly>();
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToHourly() => _tradeData.TransformToCandles<Hourly>();
         [Benchmark]
-        public IReadOnlyList<IOhlcv> TransformFromTradesToBeHourly() => _tradeData.TransformToCandles<BiHourly>();
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToBeHourly() => _tradeData.TransformToCandles<BiHourly>();
         [Benchmark]
-        public IReadOnlyList<IOhlcv> TransformFromTradesToDaily() => _tradeData.TransformToCandles<Daily>();
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToDaily() => _tradeData.TransformToCandles<Daily>();
         [Benchmark]
-        public IReadOnlyList<IOhlcv> TransformFromTradesToWeekly() => _tradeData.TransformToCandles<Weekly>();
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToWeekly() => _tradeData.TransformToCandles<Weekly>();
     }
 
     public class Program
