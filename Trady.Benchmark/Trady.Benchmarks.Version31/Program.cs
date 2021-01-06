@@ -224,15 +224,25 @@ namespace Trady.Benchmarks.Version31
         [Benchmark]
         public IReadOnlyList<IAnalyzableTick<(decimal?, decimal?, decimal?)>> KeltnerChannels() => _data.Kc(20, 2, 10);
         [Benchmark]
-        public IReadOnlyList<IOhlcbsv> TransformFromTradesToMinute() => _tradeData.TransformToCandles<PerMinute>();
+        public IReadOnlyList<IOhlcv> TransformFromTradesToMinute() => _tradeData.TransformToCandles<PerMinute>();
         [Benchmark]
-        public IReadOnlyList<IOhlcbsv> TransformFromTradesToHourly() => _tradeData.TransformToCandles<Hourly>();
+        public IReadOnlyList<IOhlcv> TransformFromTradesToHourly() => _tradeData.TransformToCandles<Hourly>();
         [Benchmark]
-        public IReadOnlyList<IOhlcbsv> TransformFromTradesToBeHourly() => _tradeData.TransformToCandles<BiHourly>();
+        public IReadOnlyList<IOhlcv> TransformFromTradesToBeHourly() => _tradeData.TransformToCandles<BiHourly>();
         [Benchmark]
-        public IReadOnlyList<IOhlcbsv> TransformFromTradesToDaily() => _tradeData.TransformToCandles<Daily>();
+        public IReadOnlyList<IOhlcv> TransformFromTradesToDaily() => _tradeData.TransformToCandles<Daily>();
         [Benchmark]
-        public IReadOnlyList<IOhlcbsv> TransformFromTradesToWeekly() => _tradeData.TransformToCandles<Weekly>();
+        public IReadOnlyList<IOhlcv> TransformFromTradesToWeekly() => _tradeData.TransformToCandles<Weekly>();
+        [Benchmark]
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToMinuteBuySell() => _tradeData.TransformToCandles<PerMinute>();
+        [Benchmark]
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToHourlyBuySell() => _tradeData.TransformToCandles<Hourly>();
+        [Benchmark]
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToBeHourlyBuySell() => _tradeData.TransformToCandles<BiHourly>();
+        [Benchmark]
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToDailyBuySell() => _tradeData.TransformToCandles<Daily>();
+        [Benchmark]
+        public IReadOnlyList<IOhlcbsv> TransformFromTradesToWeeklyBuySell() => _tradeData.TransformToCandles<Weekly>();
     }
 
     public class Program
