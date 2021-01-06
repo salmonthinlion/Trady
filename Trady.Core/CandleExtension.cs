@@ -22,7 +22,7 @@ namespace Trady.Core
 
         #region candle list transformation
 
-        public static IReadOnlyList<IOhlcv> Transform<TSourcePeriod, TTargetPeriod>(this IEnumerable<IOhlcv> candles)
+        public static IReadOnlyList<IOhlcv> Transform<TSourcePeriod, TTargetPeriod>(this IEnumerable<IOhlcv> candles, bool checkCandlesTimestampSequence = false)
             where TSourcePeriod : IPeriod
             where TTargetPeriod : IPeriod
         {
@@ -32,7 +32,10 @@ namespace Trady.Core
             if (typeof(TSourcePeriod).Equals(typeof(TTargetPeriod)))
                 return candles.ToList();
 
-            if (!IsTimeframesValid<TSourcePeriod>(candles, out var err))
+            // To prevent lazy evaluated when compute
+            var orderedCandles = candles.OrderBy(c => c.DateTime).ToList();
+
+            if (!IsTimeframesValid<TSourcePeriod>(orderedCandles, out var err, checkCandlesTimestampSequence))
                 throw new InvalidTimeframeException(err.DateTime);
 
             if (!IsTransformationValid<TSourcePeriod, TTargetPeriod>())
@@ -40,9 +43,6 @@ namespace Trady.Core
 
             var outputCandles = new List<IOhlcv>();
             var periodInstance = Activator.CreateInstance<TTargetPeriod>();
-
-            // To prevent lazy evaluated when compute
-            var orderedCandles = candles.OrderBy(c => c.DateTime).ToList();
 
             var periodStartTime = orderedCandles[0].DateTime;
             var periodEndTime = periodInstance.NextTimestamp(periodStartTime);
@@ -76,16 +76,21 @@ namespace Trady.Core
                 outputCandles.Add(computedCandle);
         }
 
-        private static bool IsTimeframesValid<TPeriod>(IEnumerable<IOhlcv> candles, out IOhlcv err)
+        private static bool IsTimeframesValid<TPeriod>(IEnumerable<IOhlcv> candles, out IOhlcv err, bool checkCandlesTimestampSequence = false)
             where TPeriod : IPeriod
         {
             var periodInstance = Activator.CreateInstance<TPeriod>();
             err = default;
-            var offset = candles.Any() ? candles.First().DateTime.Offset.Hours : 0;
             for (int i = 0; i < candles.Count() - 1; i++)
             {
-                var nextTime = periodInstance.NextTimestamp(candles.ElementAt(i).DateTime);
-                var candleEndTime = new DateTimeOffset(nextTime.Date, TimeSpan.FromHours(offset));
+                var currentCandle = candles.ElementAt(i);
+                if (checkCandlesTimestampSequence && !periodInstance.IsTimestamp(currentCandle.DateTime))
+                {
+                    err = candles.ElementAt(i);
+                    return false;
+                }
+                var nextTime = periodInstance.NextTimestamp(currentCandle.DateTime);
+                var candleEndTime = new DateTimeOffset(nextTime.Date, nextTime.Offset);
                 if (candleEndTime > candles.ElementAt(i + 1).DateTime)
                 {
                     err = candles.ElementAt(i);
@@ -129,8 +134,6 @@ namespace Trady.Core
             var volume = candles.Sum(stick => stick.Volume);
             return new Candle(dateTime, open, high, low, close, volume);
         }
-
-
         #endregion candle list transformation
     }
 }

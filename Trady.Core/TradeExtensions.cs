@@ -9,10 +9,10 @@ namespace Trady.Core
 {
     public static class TradeExtensions
     {      
-        public static IReadOnlyList<IOhlcv> TransformToCandles<TTargetPeriod>(this IEnumerable<ITickTrade> trades)           
+        public static IReadOnlyList<IOhlcbsv> TransformToCandles<TTargetPeriod>(this IEnumerable<ITickTrade> trades)           
            where TTargetPeriod : IPeriod
         {
-            var outputCandles = new List<IOhlcv>();
+            var outputCandles = new List<IOhlcbsv>();
 
             if (!trades.Any())
                 return outputCandles;
@@ -45,13 +45,13 @@ namespace Trady.Core
 
             return outputCandles;
         }
-        private static void AddComputedCandleToOutput(List<IOhlcv> outputCandlesFromTrades, List<ITickTrade> tempTrades)
+        private static void AddComputedCandleToOutput(List<IOhlcbsv> outputCandlesFromTrades, List<ITickTrade> tempTrades)
         {
             var computedCandle = ComputeCandles(tempTrades);
             if (computedCandle != null)
                 outputCandlesFromTrades.Add(computedCandle);
         }
-        private static IOhlcv ComputeCandles(IEnumerable<ITickTrade> trades)
+        private static IOhlcbsv ComputeCandles(IEnumerable<ITickTrade> trades)
         {
             if (!trades.Any())
                 return null;
@@ -61,8 +61,21 @@ namespace Trady.Core
             var high = trades.Max(trade => trade.Price);
             var low = trades.Min(trade => trade.Price);
             var close = trades.Last().Price;
-            var volume = trades.Sum(stick => stick.Volume);
-            return new Candle(dateTime, open, high, low, close, volume);
+            var sells = 0m;
+            var buys = 0m;
+
+            foreach(var trade in trades)
+            {
+                if (trade.IsSell)
+                {
+                    sells += trade.Volume;
+                }
+                else
+                {
+                    buys += trade.Volume;
+                }
+            }          
+            return new CandleWithBuysAndSells(dateTime, open, high, low, close, sells,buys);
         }
     }
 }

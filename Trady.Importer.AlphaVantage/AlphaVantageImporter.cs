@@ -94,7 +94,7 @@ namespace Trady.Importer.AlphaVantage
             var culture = "en-US";
             var cultureInfo = new CultureInfo(culture);
             var candles = new List<IOhlcv>();
-            using(var csvReader = new CsvReader(textReader, new Configuration() { CultureInfo = cultureInfo, Delimiter = ",", HasHeaderRecord = true }))
+            using(var csvReader = new CsvReader(textReader, new CsvConfiguration(cultureInfo) { Delimiter = ",", HasHeaderRecord = true }))
             {
                 bool isHeaderBypassed = false;
                 while (csvReader.Read())

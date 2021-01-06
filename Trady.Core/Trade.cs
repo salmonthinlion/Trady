@@ -7,15 +7,16 @@ namespace Trady.Core
 {
     public class Trade : ITickTrade
     {
-        public Trade(DateTimeOffset date, decimal price, decimal volume)
+        public Trade(DateTimeOffset date, decimal price, decimal volume, bool isSell)
         {
             DateTime = date;
             Price = price;
             Volume = volume;
+            IsSell = isSell;
         }
         public decimal Price { get; set; }
         public decimal Volume { get ; set ; }
         public DateTimeOffset DateTime { get; set; }
-
+        public bool IsSell { get; set; }
     }
 }
